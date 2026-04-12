@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeIQ — AI‑Powered Screening</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- RESET & VARIABLES ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0a0c15;
+      --bg-deep: #0f172a;
+      --card-bg: rgba(20, 30, 50, 0.55);
+      --card-solid: rgba(18, 25, 40, 0.85);
+      --border-glass: rgba(99, 102, 241, 0.25);
+      --accent-1: #6366f1;
+      --accent-2: #3b82f6;
+      --accent-glow: #8b5cf6;
+      --text-primary: #f1f5f9;
+      --text-secondary: #a0afc0;
+      --success-soft: #10b981;
+      --error-soft: #f87171;
+      --gradient-bg: radial-gradient(circle at 30% 30%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                     radial-gradient(circle at 80% 70%, rgba(59,130,246,0.12) 0%, transparent 50%),
+                     linear-gradient(145deg, #0b0e18 0%, #131b2f 100%);
+      --glass-edge: 1px solid rgba(255,255,255,0.05);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-deep);
+      background-image: var(--gradient-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+      backdrop-filter: blur(2px);
+      overflow-x: hidden;
+    }
+
+    /* floating glowing shapes */
+    .blob {
+      position: fixed;
+      width: 350px;
+      height: 350px;
+      background: var(--accent-1);
+      opacity: 0.1;
+      filter: blur(100px);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+      animation: floatBlob 24s infinite alternate ease-in-out;
+    }
+    .blob-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-2);
+      right: 0;
+      bottom: 0;
+      opacity: 0.07;
+      filter: blur(140px);
+      animation: floatBlob2 30s infinite alternate;
+    }
+    @keyframes floatBlob {
+      0% { transform: translate(-20px, -20px) scale(1); }
+      100% { transform: translate(40px, 40px) scale(1.2); }
+    }
+    @keyframes floatBlob2 {
+      0% { transform: translate(30px, -20px) scale(1.1); }
+      100% { transform: translate(-60px, 40px) scale(1); }
+    }
+
+    .wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* ---------- GLASS COMPONENTS ---------- */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: var(--glass-edge);
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1) inset;
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 30px 50px -15px rgba(99,102,241,0.35), 0 0 0 1px rgba(99,102,241,0.3) inset;
+      transform: translateY(-3px);
+    }
+
+    /* ---------- NAVBAR ---------- */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(10, 15, 28, 0.6);
+      backdrop-filter: blur(14px);
+      border-radius: 3rem;
+      border: 1px solid rgba(99,102,241,0.25);
+      margin-bottom: 3.5rem;
+      box-shadow: 0 15px 35px -10px #00000055;
+      position: sticky;
+      top: 1.5rem;
+      z-index: 100;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.9rem;
+      letter-spacing: -0.03em;
+      background: linear-gradient(130deg, #fff, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .logo span {
+      background: linear-gradient(130deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .nav-links a:hover {
+      color: white;
+      text-shadow: 0 0 8px var(--accent-1);
+    }
+    .badge-ai {
+      background: linear-gradient(145deg, #1e2a47, #131e36);
+      padding: 0.35rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #3b82f670;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-2);
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      text-align: center;
+      max-width: 800px;
+      margin: 2rem auto 5rem;
+      animation: fadeUp 1s ease;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      background: linear-gradient(140deg, #ffffff, #c7d2fe, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.2rem;
+    }
+    .cta-btn {
+      background: linear-gradient(145deg, #4f46e5, #6366f1);
+      border: none;
+      color: white;
+      padding: 1.1rem 3.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 20px 30px -12px #4f46e580, 0 0 0 1px #a5b4fc inset;
+      transition: all 0.25s;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(4px);
+    }
+    .cta-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 25px 40px -10px #6366f1, 0 0 0 2px #ffffff40 inset;
+      background: linear-gradient(145deg, #6366f1, #8b5cf6);
+    }
+
+    /* ---------- 2‑COLUMN UPLOAD & JD ---------- */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2.5rem 0 2rem;
+    }
+    @media (max-width:720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title i {
+      font-size: 1.8rem;
+      background: linear-gradient(145deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* DROP ZONE */
+    .drop-area {
+      background: rgba(30, 41, 70, 0.3);
+      border: 2px dashed var(--border-glass);
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .drop-area:hover, .drop-area.dragover {
+      border-color: #8b5cf6;
+      background: rgba(99,102,241,0.12);
+      transform: scale(1.01);
+    }
+    .drop-icon {
+      font-size: 2.8rem;
+      margin-bottom: 0.8rem;
+      filter: drop-shadow(0 0 10px #6366f1);
+    }
+    .file-list {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .file-item {
+      background: rgba(0,0,0,0.3);
+      border-radius: 40px;
+      padding: 0.4rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      border: 1px solid #334155;
+      backdrop-filter: blur(4px);
+    }
+    .file-remove {
+      color: #ef4444;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0 0.3rem;
+    }
+
+    /* JD TEXTAREA */
+    .jd-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    textarea {
+      background: rgba(10, 15, 30, 0.7);
+      border: 1px solid #2d3a5e;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: white;
+      resize: vertical;
+      min-height: 200px;
+      outline: none;
+      transition: 0.15s;
+      backdrop-filter: blur(6px);
+    }
+    textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px #6366f150, 0 0 20px #3b82f630;
+    }
+    .char-counter {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .ai-icon-corner {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      align-items: center;
+    }
+    .analyze-btn {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 1px solid #3b82f6;
+      padding: 0.9rem 2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 10px 15px -5px #00000080;
+    }
+    .analyze-btn:hover {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 25px #6366f1, 0 10px 20px -10px #000;
+      transform: translateY(-2px);
+    }
+
+    /* ---------- LOADING (BRAIN SPINNER) ---------- */
+    .loader-section {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin: 3rem 0;
+    }
+    .loader-section.show {
+      display: flex;
+    }
+    .brain-spinner {
+      width: 80px;
+      height: 80px;
+      border: 3px solid transparent;
+      border-top: 3px solid #8b5cf6;
+      border-right: 3px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 40px #6366f1;
+    }
+    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+
+    /* ---------- RESULTS SECTION ---------- */
+    .results-area {
+      display: none;
+      margin-top: 4rem;
+    }
+    .results-area.show { display: block; }
+
+    .sort-bar {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0 1.5rem;
+      flex-wrap: wrap;
+    }
+    .sort-btn {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+      border-radius: 30px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: 0.2s;
+    }
+    .sort-btn.active {
+      background: var(--accent-1);
+      border-color: white;
+    }
+
+    /* resume cards */
+    .card-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .resume-card {
+      background: var(--card-solid);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 1.8rem;
+      padding: 1.6rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.25s;
+      animation: fadeUp 0.6s ease;
+      box-shadow: 0 10px 25px -15px black;
+    }
+    .resume-card:hover {
+      border-color: #8b5cf6;
+      box-shadow: 0 25px 35px -18px #6366f1, 0 0 0 1px #8b5cf6 inset;
+      transform: translateY(-4px);
+    }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .cand-info {
+      min-width: 200px;
+    }
+    .cand-name {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    .cand-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0.5rem 0;
+    }
+    .skill-tag {
+      background: #1e2b45;
+      padding: 0.25rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      border: 1px solid #3b82f670;
+    }
+    .missing-tag {
+      background: #442726;
+      border-color: #ef444480;
+      color: #fca5a5;
+    }
+
+    .circular-progress {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-2) 0deg 180deg, #2d3a5e 180deg 360deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin: 0 1rem;
+      box-shadow: 0 0 15px #3b82f6;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .download-btn {
+      background: none;
+      border: 1px solid #475569;
+      border-radius: 2rem;
+      padding: 0.6rem 1.2rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+    .download-btn:hover {
+      background: #6366f1;
+      border-color: white;
+    }
+
+    /* footer */
+    .footer {
+      margin-top: 5rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #7f8ea3;
+      border-top: 1px solid #1f2a44;
+      padding-top: 2rem;
+    }
+
+    /* filter indicator */
+    .filter-chip {
+      background: #1e2a47;
+      border-radius: 30px;
+      padding: 0.3rem 1.2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="blob"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="wrapper">
+    <!-- Sticky navbar -->
+    <nav class="navbar">
+      <div class="logo">Resume<span>IQ</span></div>
+      <div class="nav-links">
+        <span class="badge-ai">⚡ AI 2.0</span>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Resume Screening & Job Matcher</h1>
+      <p>Upload resumes. Analyze instantly. Hire smarter.</p>
+      <button class="cta-btn" onclick="document.querySelector('.grid-2').scrollIntoView({behavior:'smooth'})">Start Screening →</button>
+    </section>
+
+    <!-- 2‑column upload & JD -->
+    <div class="grid-2">
+      <!-- left: resume upload -->
+      <div class="glass-card" style="padding: 2rem 1.8rem;">
+        <div class="section-title">
+          <i>📂</i> Upload Resumes (PDF)
+        </div>
+        <div class="drop-area" id="dropzone">
+          <div class="drop-icon">📎</div>
+          <p><strong>Drag & drop</strong> or click to browse<br><span style="color: var(--text-secondary); font-size:0.9rem;">multiple PDFs supported</span></p>
+          <input type="file" id="fileInput" multiple accept=".pdf" style="display: none;">
+        </div>
+        <div class="file-list" id="fileList"></div>
+        <!-- fake progress animation placeholder (processing later) -->
+      </div>
+
+      <!-- right: job description -->
+      <div class="glass-card" style="padding: 2rem 1.8rem;">
+        <div class="section-title">
+          <i>📋</i> Job Description
+        </div>
+        <div class="jd-box">
+          <textarea id="jdText" placeholder="Paste job description here... e.g. looking for Full Stack Engineer with React, Python, AWS, ..."></textarea>
+          <div class="char-counter"><span id="charCount">0</span> characters</div>
+          <div class="ai-icon-corner">
+            <button class="analyze-btn" id="analyzeBtn"> <span>🔮</span> Analyze Resumes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading spinner with AI brain -->
+    <div class="loader-section" id="loadingSpinner">
+      <div class="brain-spinner"></div>
+      <p style="margin-top: 1.5rem; font-size: 1.2rem;">AI is reading resumes ...</p>
+    </div>
+
+    <!-- Results area -->
+    <div class="results-area" id="resultsArea">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 2rem; font-weight: 600;">📊 Ranking</h2>
+        <div class="sort-bar" id="sortBar">
+          <span class="sort-btn active" data-sort="match">Sort by Match %</span>
+          <span class="sort-btn" data-sort="name">Name</span>
+          <span class="filter-chip" id="filter70">🔹 Filter >70%</span>
+        </div>
+      </div>
+      <div class="card-grid" id="cardGrid">
+        <!-- filled by js -->
+      </div>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+      Powered by AI · Built with Flask · ResumeIQ © 2026
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- vanilla JS state ----------
+      let selectedFiles = [];
+      let candidatesData = [];          // mock after analysis
+      let filterThreshold = 0;           // 0 = no filter, 70 = >70
+
+      // DOM elements
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const fileListEl = document.getElementById('fileList');
+      const jdText = document.getElementById('jdText');
+      const charSpan = document.getElementById('charCount');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const resultsArea = document.getElementById('resultsArea');
+      const cardGrid = document.getElementById('cardGrid');
+      const sortBar = document.getElementById('sortBar');
+      const filter70 = document.getElementById('filter70');
+
+      // JD char counter
+      jdText.addEventListener('input', () => {
+        charSpan.innerText = jdText.value.length;
+      });
+
+      // ---------- FILE DRAG/DROP ----------
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+      });
+      fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+      function handleFiles(fileList) {
+        for (let f of fileList) {
+          if (f.type === 'application/pdf' || f.name.endsWith('.pdf')) {
+            if (!selectedFiles.some(ex => ex.name === f.name && ex.size === f.size)) {
+              selectedFiles.push(f);
+            }
+          }
+        }
+        renderFileList();
+      }
+
+      function renderFileList() {
+        if (selectedFiles.length === 0) {
+          fileListEl.innerHTML = '';
+          return;
+        }
+        let html = '';
+        selectedFiles.forEach((f, idx) => {
+          html += `<div class="file-item">
+            <span>📄 ${f.name} (${(f.size/1024).toFixed(0)} KB)</span>
+            <span class="file-remove" data-idx="${idx}">✕</span>
+          </div>`;
+        });
+        fileListEl.innerHTML = html;
+        document.querySelectorAll('.file-remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = e.target.dataset.idx;
+            selectedFiles.splice(idx, 1);
+            renderFileList();
+          });
+        });
+      }
+
+      // ---------- HELPER: extract name from filename ----------
+      function extractNameFromFilename(filename) {
+        // Remove extension .pdf (case insensitive)
+        let name = filename.replace(/\.pdf$/i, '');
+        // Remove common prefixes like "Resume", "CV", "resume_", "cv-" etc.
+        name = name.replace(/^(resume|cv|Resume|CV|résumé|cover)?[_\-\s]*/i, '');
+        // Also clean trailing spaces/underscores and capitalize
+        name = name.trim().replace(/[-_]/g, ' ');
+        // If after cleaning it's empty, fallback to original filename without extension
+        if (!name) name = filename.replace(/\.pdf$/i, '');
+        // Capitalize first letter of each word for better presentation
+        return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+      }
+
+      // ---------- MOCK AI ANALYSIS (with name from file) ----------
+      function generateMockCandidates(count) {
+        const skillPool = ['React', 'Python', 'AWS', 'TypeScript', 'Docker', 'Kubernetes', 'Node.js', 'GraphQL', 'PostgreSQL', 'TensorFlow', 'PyTorch', 'GCP', 'CI/CD', 'Java', 'Go', 'SQL', 'Flask', 'Django'];
+        // extract required skills from JD (mock)
+        const jd = jdText.value;
+        let required = ['Python', 'SQL', 'Java', 'Flask', 'Django']; // fallback
+        if (jd.length > 10) {
+          // naive skill detection (for mock)
+          required = skillPool.filter(skill => jd.toLowerCase().includes(skill.toLowerCase())).slice(0, 6);
+          if (required.length < 2) required = ['Python', 'SQL', 'Java', 'Flask', 'Django'];
+        }
+
+        let arr = [];
+        for (let i=0; i<Math.min(count,8); i++) {
+          // determine match count (some variety)
+          const matchCount = Math.min(required.length, Math.max(0, required.length - Math.floor(Math.random() * 4)));
+          const matched = required.slice(0, matchCount);
+          const missing = required.filter(s => !matched.includes(s));
+          
+          // candidate name from file OR fallback
+          let candidateName = 'Unknown';
+          if (selectedFiles[i]) {
+            candidateName = extractNameFromFilename(selectedFiles[i].name);
+          } else {
+            candidateName = `Candidate ${i+1}`;
+          }
+
+          const matchPercent = required.length ? Math.floor((matched.length / required.length) * 100) : 0;
+          
+          arr.push({
+            id: i,
+            name: candidateName,
+            match: matchPercent,
+            matchedSkills: matched,
+            missingSkills: missing,
+            filename: selectedFiles[i] ? selectedFiles[i].name : `resume_${i}.pdf`,
+          });
+        }
+        // sort by match descending initially
+        return arr.sort((a,b) => b.match - a.match);
+      }
+
+      // render cards based on candidatesData & filter/sort
+      function renderCards() {
+        if (!candidatesData.length) {
+          cardGrid.innerHTML = '<div class="glass-card" style="padding:3rem; text-align:center;">No candidates yet. Run analysis first.</div>';
+          return;
+        }
+        let filtered = candidatesData;
+        if (filterThreshold === 70) {
+          filtered = candidatesData.filter(c => c.match > 70);
+        }
+        // current sort
+        const sortType = document.querySelector('.sort-btn.active')?.dataset.sort || 'match';
+        if (sortType === 'match') filtered = [...filtered].sort((a,b) => b.match - a.match);
+        else if (sortType === 'name') filtered = [...filtered].sort((a,b) => a.name.localeCompare(b.name));
+
+        let html = '';
+        filtered.forEach(c => {
+          const match = c.match;
+          const angle = (match/100)*360;
+          const bgStyle = `conic-gradient(#3b82f6 0deg ${angle}deg, #2d3a5e ${angle}deg 360deg)`;
+
+          // Show up to 3 matched + up to 2 missing with counters
+          const shownMatched = c.matchedSkills.slice(0, 3);
+          const shownMissing = c.missingSkills.slice(0, 2);
+          const extraMissing = c.missingSkills.length - shownMissing.length;
+
+          html += `<div class="resume-card">
+            <div class="cand-info">
+              <div class="cand-name">${c.name}</div>
+              <div class="cand-skills">
+                ${shownMatched.map(s => `<span class="skill-tag">✓ ${s}</span>`).join('')}
+                ${shownMissing.map(s => `<span class="skill-tag missing-tag">✗ ${s}</span>`).join('')}
+                ${extraMissing > 0 ? `<span class="skill-tag missing-tag">+${extraMissing}</span>` : ''}
+              </div>
+              <div style="font-size:0.8rem; color:#7f8ea3;">${c.filename}</div>
+            </div>
+            <div class="circular-progress" style="background: ${bgStyle};">${match}%</div>
+            <div class="card-actions">
+              <button class="download-btn" data-cand='${JSON.stringify(c)}'>📥 Report</button>
+            </div>
+          </div>`;
+        });
+        cardGrid.innerHTML = html;
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const cand = JSON.parse(e.target.dataset.cand);
+            alert(`Full report for ${cand.name} (simulated).\nMatched: ${cand.matchedSkills.join(', ')}\nMissing: ${cand.missingSkills.join(', ')}`);
+          });
+        });
+      }
+
+      // ---------- ANALYZE ACTION ----------
+      analyzeBtn.addEventListener('click', () => {
+        if (selectedFiles.length === 0) {
+          alert('Please upload at least one resume PDF.');
+          return;
+        }
+        if (!jdText.value.trim()) {
+          alert('Paste a job description.');
+          return;
+        }
+
+        loadingSpinner.classList.add('show');
+        resultsArea.classList.remove('show');
+
+        setTimeout(() => {
+          loadingSpinner.classList.remove('show');
+          candidatesData = generateMockCandidates(selectedFiles.length);
+          filterThreshold = 0;
+          document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+          document.querySelector('[data-sort="match"]').classList.add('active');
+          renderCards();
+          resultsArea.classList.add('show');
+        }, 1600);
+      });
+
+      // sorting events
+      sortBar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.sort-btn');
+        if (btn) {
+          document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderCards();
+        }
+      });
+
+      // filter 70%
+      filter70.addEventListener('click', () => {
+        filterThreshold = filterThreshold === 70 ? 0 : 70;
+        filter70.style.background = filterThreshold === 70 ? '#4f46e5' : '#1e2a47';
+        renderCards();
+      });
+
+      // initial
+      renderFileList();
+      charSpan.innerText = '0';
+      resultsArea.classList.remove('show');
+    })();
+  </script>
+  <!-- small extra styles -->
+  <style>
+    .sort-btn.active { background: #6366f1; border-color: white; }
+    .filter-chip.active { background: #4f46e5; }
+    .dragover { border-color: #8b5cf6; background: #2d3a6e40; }
+  </style>
+</body>
+</html>
